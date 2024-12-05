@@ -19,15 +19,12 @@
         }
         .highlight-blue {
             color: blue;
-            font-weight: bold;
         }
         .highlight-red {
             color: red;
-            font-weight: bold;
         }
         .highlight-green {
             color: green;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -75,7 +72,13 @@
             { regs: ["SCF", "SCG", "SCH", "SCI", "SCJ", "SCK", "SCL", "SCM", "SCN", "SCP", "SCQ", "SCR", "SCS", "SCT", "SCU", "SCV", "SCW", "SCX"], mtow: 68000, mlm: 61000, mzfw: 57000 },
             { regs: ["PPH", "PPI", "PPJ", "PPK", "PPL", "PPM", "PPN", "PPO", "PPQ", "PPT", "PPU", "PPV", "PPW", "PPX"], mtow: 89000, mlm: 75500, mzfw: 71500 },
             { regs: ["RTB", "RTC", "RTD", "RTE", "TVA", "TVB", "TVC", "TVD", "TVE", "TVF"], mtow: 93500, mlm: 79200, mzfw: 75600 },
-            { regs: ["TVG", "TVH", "TVI", "TVJ"], mtow: 97000, mlm: 79200, mzfw: 75600 }
+            { regs: ["TVG", "TVH", "TVI", "TVJ"], mtow: 97000, mlm: 79200, mzfw: 75600 },
+            { regs: ["AMD", "HKG"], mtow: 77000, mlm: 64500, mzfw: 61000 },
+            { regs: ["BKK", "BOM", "IXR", "VTZ", "APJ", "ATB", "ATF", "ATQ", "GWH", "HYD", "IMP", "JPR", "JRT", "KOC", "KUL", "PNQ", "RED", "VNS"], mtow: 73500, mlm: 66000, mzfw: 62500 },
+            { regs: ["EXD", "EXE", "KTM"], mtow: 77000, mlm: 66000, mzfw: 62500 },
+            { regs: ["MLE"], mtow: 73500, mlm: 64500, mzfw: 61000 },
+            { regs: ["NAG"], mtow: 75500, mlm: 66000, mzfw: 62500 },
+            { regs: ["ATD", "ATE", "ATG", "ATH", "ATJ"], mtow: 75500, mlm: 67400, mzfw: 64300 }
         ];
 
         function findAircraft(registration) {
@@ -102,35 +105,32 @@
             const maxFuelUplift = mlmTripFuel - pzfw;
 
             let extraFuel;
-            if (rtow === mzfwTakeoffFuel) {
+            if (mzfwTakeoffFuel === rtow) {
                 extraFuel = mzfwTakeoffFuel - (aircraft.mlm - tripFuel);
             } else {
                 extraFuel = maxFuelUplift - totalFuel;
             }
 
+            const rtowElement = document.getElementById('outputRtow');
+            if (rtow === mlmTripFuel) {
+                rtowElement.className = 'highlight-blue';
+            } else if (rtow === mzfwTakeoffFuel) {
+                rtowElement.className = 'highlight-red';
+            } else if (rtow === aircraft.mtow) {
+                rtowElement.className = 'highlight-green';
+            } else {
+                rtowElement.className = '';
+            }
+
             document.getElementById('mtow').textContent = aircraft.mtow;
             document.getElementById('mlm').textContent = aircraft.mlm;
             document.getElementById('mzfw').textContent = aircraft.mzfw;
-
             document.getElementById('outputMtow').textContent = aircraft.mtow;
             document.getElementById('outputMlmTripFuel').textContent = mlmTripFuel;
             document.getElementById('outputMzfwTakeoffFuel').textContent = mzfwTakeoffFuel;
-
-            const rtowOutput = document.getElementById('outputRtow');
-            rtowOutput.textContent = rtow;
-
-            // Highlight RTOW based on conditions
-            rtowOutput.className = ''; // Reset class
-            if (rtow === aircraft.mtow) {
-                rtowOutput.classList.add('highlight-green');
-            } else if (rtow === mlmTripFuel) {
-                rtowOutput.classList.add('highlight-blue');
-            } else if (rtow === mzfwTakeoffFuel) {
-                rtowOutput.classList.add('highlight-red');
-            }
-
+            document.getElementById('outputRtow').textContent = rtow;
             document.getElementById('outputFuelUplift').textContent = maxFuelUplift;
-            document.getElementById('outputExtraFuel').textContent = extraFuel.toFixed(2);
+            document.getElementById('outputExtraFuel').textContent = extraFuel;
         }
     </script>
 </body>
