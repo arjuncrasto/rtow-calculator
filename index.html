@@ -17,6 +17,18 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .highlight-blue {
+            color: blue;
+            font-weight: bold;
+        }
+        .highlight-red {
+            color: red;
+            font-weight: bold;
+        }
+        .highlight-green {
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +60,7 @@
         <p>MZFW + Takeoff Fuel: <span id="outputMzfwTakeoffFuel">-</span> kg</p>
         <p>RTOW (Lowest of Above): <span id="outputRtow">-</span> kg</p>
         <p>Maximum Fuel Uplift: <span id="outputFuelUplift">-</span> kg</p>
+        <p>Extra Fuel: <span id="outputExtraFuel">-</span> kg</p>
     </div>
 
     <script>
@@ -88,14 +101,36 @@
             const rtow = Math.min(aircraft.mtow, mlmTripFuel, mzfwTakeoffFuel);
             const maxFuelUplift = mlmTripFuel - pzfw;
 
+            let extraFuel;
+            if (rtow === mzfwTakeoffFuel) {
+                extraFuel = mzfwTakeoffFuel - (aircraft.mlm - tripFuel);
+            } else {
+                extraFuel = maxFuelUplift - totalFuel;
+            }
+
             document.getElementById('mtow').textContent = aircraft.mtow;
             document.getElementById('mlm').textContent = aircraft.mlm;
             document.getElementById('mzfw').textContent = aircraft.mzfw;
+
             document.getElementById('outputMtow').textContent = aircraft.mtow;
             document.getElementById('outputMlmTripFuel').textContent = mlmTripFuel;
             document.getElementById('outputMzfwTakeoffFuel').textContent = mzfwTakeoffFuel;
-            document.getElementById('outputRtow').textContent = rtow;
+
+            const rtowOutput = document.getElementById('outputRtow');
+            rtowOutput.textContent = rtow;
+
+            // Highlight RTOW based on conditions
+            rtowOutput.className = ''; // Reset class
+            if (rtow === aircraft.mtow) {
+                rtowOutput.classList.add('highlight-green');
+            } else if (rtow === mlmTripFuel) {
+                rtowOutput.classList.add('highlight-blue');
+            } else if (rtow === mzfwTakeoffFuel) {
+                rtowOutput.classList.add('highlight-red');
+            }
+
             document.getElementById('outputFuelUplift').textContent = maxFuelUplift;
+            document.getElementById('outputExtraFuel').textContent = extraFuel.toFixed(2);
         }
     </script>
 </body>
