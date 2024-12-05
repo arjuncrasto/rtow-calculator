@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTOW Calculator Captain Leo Arjun Crasto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        label, input, button {
+            margin: 10px 0;
+            display: block;
+        }
+        .output {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>RTOW Calculator Captain Leo Arjun Crasto</h1>
+
+    <label for="registration">Enter Aircraft Registration:</label>
+    <input type="text" id="registration" placeholder="e.g., TNZ">
+
+    <p id="limits">
+        MTOW: <span id="mtow">-</span> kg | 
+        MLM: <span id="mlm">-</span> kg | 
+        MZFW: <span id="mzfw">-</span> kg
+    </p>
+
+    <label for="totalFuel">Total Planned Fuel (in kg):</label>
+    <input type="number" id="totalFuel" placeholder="e.g., 10000">
+
+    <label for="pzfw">Planned Zero Fuel Weight (PZFW, in kg):</label>
+    <input type="number" id="pzfw" placeholder="e.g., 50000">
+
+    <label for="tripFuel">Trip Fuel (in kg):</label>
+    <input type="number" id="tripFuel" placeholder="e.g., 5000">
+
+    <button onclick="calculate()">Calculate</button>
+
+    <div class="output">
+        <p>MTOW: <span id="outputMtow">-</span> kg</p>
+        <p>MLM + Trip Fuel: <span id="outputMlmTripFuel">-</span> kg</p>
+        <p>MZFW + Takeoff Fuel: <span id="outputMzfwTakeoffFuel">-</span> kg</p>
+        <p>RTOW (Lowest of Above): <span id="outputRtow">-</span> kg</p>
+        <p>Maximum Fuel Uplift: <span id="outputFuelUplift">-</span> kg</p>
+    </div>
+
+    <script>
+        const aircraftData = [
+            { regs: ["EDC", "EDD", "EDE", "EDF"], mtow: 73500, mlm: 64500, mzfw: 61000 },
+            { regs: ["EXA", "EXB", "EXC", "EXD", "EXE"], mtow: 77000, mlm: 66000, mzfw: 62500 },
+            { regs: ["ATV", "RIO", "RTV", "RTW", "RTX", "RTY", "RTZ", "TNB", "TNC", "TNF", "TNH", "TNI", "TNJ", "TNK", "TNZ", "TQB", "TQC", "TQE", "TQG", "TQK", "TQM", "TQN", "TQO", "TQP", "TQR", "TQS", "TQT", "TQU", "TQV", "TQW", "TQX", "TYA"], mtow: 73500, mlm: 66300, mzfw: 62800 },
+            { regs: ["TNL", "TNM", "TNP", "TNQ", "TNR", "TNS", "TNU", "TNV", "TNW", "TNX", "TNY", "TQA", "TQD", "TQF", "TQH", "TQI", "TQJ", "TQL"], mtow: 77000, mlm: 66300, mzfw: 62800 },
+            { regs: ["RTF", "RTG", "RTH", "RTI", "RTJ", "RTK", "RTL", "RTM", "RTN"], mtow: 73500, mlm: 67400, mzfw: 64300 },
+            { regs: ["RTO", "RTP", "RTQ", "RTS", "RTT", "RTU", "TNN"], mtow: 79000, mlm: 67400, mzfw: 64300 },
+            { regs: ["CID", "CIE", "CIF", "CIG", "CIH", "CIM", "CIN", "CIO", "CIP", "CIQ", "EXF", "EXG", "EXH", "EXI", "EXJ", "EXK", "EXL", "EXM", "EXN", "EXO", "EXP", "EXQ", "EXR", "EXS", "EXT", "EXU", "EXV"], mtow: 79000, mlm: 67400, mzfw: 64300 },
+            { regs: ["SCF", "SCG", "SCH", "SCI", "SCJ", "SCK", "SCL", "SCM", "SCN", "SCP", "SCQ", "SCR", "SCS", "SCT", "SCU", "SCV", "SCW", "SCX"], mtow: 68000, mlm: 61000, mzfw: 57000 },
+            { regs: ["PPH", "PPI", "PPJ", "PPK", "PPL", "PPM", "PPN", "PPO", "PPQ", "PPT", "PPU", "PPV", "PPW", "PPX"], mtow: 89000, mlm: 75500, mzfw: 71500 },
+            { regs: ["RTB", "RTC", "RTD", "RTE", "TVA", "TVB", "TVC", "TVD", "TVE", "TVF"], mtow: 93500, mlm: 79200, mzfw: 75600 },
+            { regs: ["TVG", "TVH", "TVI", "TVJ"], mtow: 97000, mlm: 79200, mzfw: 75600 }
+        ];
+
+        function findAircraft(registration) {
+            return aircraftData.find(group => group.regs.includes(registration));
+        }
+
+        function calculate() {
+            const reg = document.getElementById('registration').value.toUpperCase();
+            const aircraft = findAircraft(reg);
+
+            if (!aircraft) {
+                alert('Aircraft registration not found!');
+                return;
+            }
+
+            const totalFuel = parseFloat(document.getElementById('totalFuel').value) || 0;
+            const pzfw = parseFloat(document.getElementById('pzfw').value) || 0;
+            const tripFuel = parseFloat(document.getElementById('tripFuel').value) || 0;
+
+            const takeoffFuel = totalFuel - 65 - 300; // APU + Taxi fuel in kg
+            const mlmTripFuel = aircraft.mlm + tripFuel;
+            const mzfwTakeoffFuel = aircraft.mzfw + takeoffFuel;
+            const rtow = Math.min(aircraft.mtow, mlmTripFuel, mzfwTakeoffFuel);
+            const maxFuelUplift = mlmTripFuel - pzfw;
+
+            document.getElementById('mtow').textContent = aircraft.mtow;
+            document.getElementById('mlm').textContent = aircraft.mlm;
+            document.getElementById('mzfw').textContent = aircraft.mzfw;
+            document.getElementById('outputMtow').textContent = aircraft.mtow;
+            document.getElementById('outputMlmTripFuel').textContent = mlmTripFuel;
+            document.getElementById('outputMzfwTakeoffFuel').textContent = mzfwTakeoffFuel;
+            document.getElementById('outputRtow').textContent = rtow;
+            document.getElementById('outputFuelUplift').textContent = maxFuelUplift;
+        }
+    </script>
+</body>
+</html>
